@@ -1,15 +1,74 @@
 ---
 title: "WCBC Tasks"
-author: "Fabian Schroeder"
+author: "Martin Freisehner & Wilma Weixelbaum"
 date: "May 29, 2018"
 output: html_document
 ---
 
 ### Historic WC Data
 
+Required packages
+```{r }
+library(stats)
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+library(DT)
+```
 * **Task 1.** Get familiar with the data using `str()`, `head()`, `table()`, `summary()`, etc. Describe the data in a few lines.
+```{r }
+WC.history <- read.csv("WorldCupMatches.csv")
+head(WC.history)
+```
+```{r }
+WC.history <- na.omit(WC.history)
+# remove rn" from team names
+WC.history$Home.Team.Name <- as.factor(sapply(WC.history$Home.Team.Name, function (x) return(gsub("rn\">", "",x))))
+WC.history$Away.Team.Name <- as.factor(sapply(WC.history$Away.Team.Name, function (x) return(gsub("rn\">", "",x))))
+summary(WC.history)
+```
+In the summary we can see that 3720 lines without information are part of the dataset. Except of that we can also see that the records range from 1930 until 2014. Interesting is that Brazil was the Home Team for 82 and the maximum count for away teams is 38 (Mexico). This shows irregularities between the distribution of teams for home and away position.
+```{r }
+summary(WC.history[WC.history$Home.Team.Name=='Brazil',][,c("Year", "Stage", "Away.Team.Name" )])
+```
+Further exploration shows, that a reason for this is the high proportion of finals (Round of 16 and up) for Brazil. The group winner gets assigned as Home-Team in finals, therefore a good team like Brazil shows often up as home team.
 
 * **Task 2.** Write a function that generates the result of the game (W, D, L) from the vectors. How would you incorporate the information in the variable `Win.conditions`?
+```{r }
+getResult <- function (entry) {
+  if (as.numeric(entry['Home.Team.Goals']) > as.numeric(entry['Away.Team.Goals'])) {
+    return("W");
+  } else if (as.numeric(entry['Home.Team.Goals']) == as.numeric(entry['Away.Team.Goals'])) {
+    # check for penalty information
+    if (grepl(entry["Home.Team.Name"], entry['Win.conditions'], fixed=T)) {
+      return("W");
+    } else if (grepl(entry["Away.Team.Name"], entry['Win.conditions'], fixed=T)) {
+      return("L");
+    }
+    
+    # check for old penalty info
+    if (grepl("win on penalties", entry['Win.conditions'], fixed=T)) {
+      res <- unlist(strsplit(
+        substr(entry['Win.conditions'], nchar(entry['Win.conditions']) - 6, nchar(entry['Win.conditions'])),
+        "-"))
+      home_goal <- as.numeric(substr(res[1],1,nchar(res[1])))
+      away_goal <- as.numeric(substr(res[2],0,nchar(res[2])-2))
+      
+      if (home_goal > away_goal) {
+        return("W");
+      } else {
+        return("L");
+      }
+      
+    }
+    
+    return("D");
+  } else {
+    return("L");
+  }
+}
+WC.history$result <- apply(WC.history,1, getResult)
+```
 
 * **Task 3.** Explore the data set using summary statistics and illustrations. 
 
@@ -17,13 +76,60 @@ output: html_document
   - Create a table with the number of wins/draws/losses for ever nation.
   - How many goals were scored on average by ever nation?
   - etc.
+  
+```{r }
+home_match <- WC.history[,c("Year", "Home.Team.Name", "Home.Team.Goals", "Away.Team.Name", "Away.Team.Goals", "Stage", "Home.Team.Initials", "Away.Team.Initials", "result")];
+away_match <- WC.history[,c("Year", "Away.Team.Name", "Away.Team.Goals", "Home.Team.Name", "Home.Team.Goals", "Stage", "Away.Team.Initials", "Home.Team.Initials", "result")];
 
+#switch away match to home match (we want a table of format Team vs oppponent and don't care about home/away)
+away_match$result <- sapply(away_match$result, function (x) switch(x, "W"="L", "L"="W", "D"))
+
+colnames(away_match) <- colnames(home_match);
+WC.matches <- rbind(home_match, away_match);
+WC.matches <- arrange(WC.matches, Year);
+colnames(WC.matches) <- c("Year", "Team.Name", "Team.Goals", "Opponent.Name", "Opponent.Goals", "Stage", "Team.Initials", "Opponent.Initials", "Result");
+participation <- WC.matches %>% distinct(Year, Team.Initials) %>% count(Team.Initials) %>% arrange(desc(n)) %>% top_n(20)
+# order by count
+participation$Team.Initials <- factor(participation$Team.Initials, levels = participation$Team.Initials[order(participation$n, decreasing=T)])
+# show chart
+getPalette = colorRampPalette(brewer.pal(9, "Set1"))
+participation %>% ggplot(aes(x = Team.Initials, y = n, fill=Team.Initials)) + theme_bw() +
+    geom_bar(stat = "identity") +
+    labs(title = "Most participations since 1930", x = "Nations", y = "Participations") +
+    scale_fill_manual(values = getPalette(length(unique(participation$Team.Initials))),
+                      guide = FALSE)
+
+```
+```{r message=FALSE, warning=FALSE}
+WC.teamstats <- WC.matches %>% 
+  group_by(Team.Initials) %>%
+  summarise(Wins = sum(Result=="W"), Draws = sum(Result=="D"), Losses = sum(Result=="L"), Goals.Scored.Avg = mean(Team.Goals), Goals.Allowed.Avg = mean(Opponent.Goals))
+datatable(WC.teamstats)
+```
 * **Task 4.** Do you think this data set can be used to build a predictor function?
 
+While this data only allows simple classifiers it still can be used for predictor functions. A very simple solution would be a predictor that depends on previous results of the teams. For teams that haven't played against each other the general proportion of wins/draws/losses can be checked. Influence of matches could also be weighted more if they took place in the less distant future. Overall one can say that every little piece of information can be used for the predictor, but the results we can expect from a predictor which incorporates only this historical data most probably won't be very accurate. 
 
 ### FIFA Ranking Data
 
 * **Task 5.** Get familiar with the data using `str()`, `head()`, `table()`, `summary()`, etc. 
+```{r }
+fifa.ranking <- read.csv("fifa_ranking.csv")
+fifa.ranking$rank_date <- as.Date(fifa.ranking$rank_date, "%Y-%m-%d")
+summary(fifa.ranking)
+
+# fetch the 'regular' amount of appearences per country 
+reg_amount <- fifa.ranking %>% group_by(country_full) %>% summarize(n = n()) %>% group_by(n) %>% summarize(n_countries = n()) %>% arrange(desc(n_countries)) %>% top_n(1)
+
+# fetch the amount of different dates
+date_amount <- fifa.ranking %>% distinct(rank_date) %>% summarize(n = n())
+
+# get dates for SUDAN (!!duplicates!!)
+sdn_dates <- fifa.ranking[fifa.ranking$country_abrv=='SDN',] %>% group_by(rank_date) %>% summarize(n=n()) %>% filter(n>1)
+```
+
+A first look at the data shows that the rankings range from 08.08.1993 to 17.05.2018
+Most countries appear exactly 285 times. All other countries except Sudan appear less often. This has different reasons (e.g. political - a countries football association might have not been a part of FIFA,..). The dataset also has recordings for 285 different dates, which matches the number of 'regular' appearences. This also shows that we have far more entries than we need. The most relevant score is the one immediately before the start of the WC. For the special case of Sudan we can find multiple entries per day. As Sudan is not part of the current WC this problem can be ignored. 
 
 * **Task 6.** What is the class of `fifa.ranking$rank_date`? Is this a problem? Can you change it to class `date` using `as.Date`? What difference does this make for e.g. plotting?
 
