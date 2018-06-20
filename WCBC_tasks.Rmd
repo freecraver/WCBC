@@ -142,14 +142,18 @@ favorite_ranks <- fifa.ranking %>% filter(country_full %in% favorites) %>% selec
 ggplot(data=favorite_ranks, aes(x=rank_date, y=rank, group=country_full)) +
   geom_line(aes(color=country_full)) +
   geom_point(aes(color=country_full)) +
-  scale_y_reverse(limits=c(30,0))
+  scale_y_reverse(limits=c(30,1)) +
+  theme(legend.position="bottom")
 ```
+
 If you use `ggplot()` don't forget to `scale_y_reverse()``
 
 
 ### Transfermarkt.de Data
 
 * **Task 8.** Have a look at the following web site [https://www.transfermarkt.com/weltmeisterschaft-2018/startseite/pokalwettbewerb/WM18](https://www.transfermarkt.com/weltmeisterschaft-2018/startseite/pokalwettbewerb/WM18). Where can you find detailed information from the past world cups?
+
+Via [https://www.transfermarkt.com/weltmeisterschaft-2018/turnierbilanz/pokalwettbewerb/WM18](https://www.transfermarkt.com/weltmeisterschaft-2018/turnierbilanz/pokalwettbewerb/WM18) all other worldcups are linked. With a click on the respective year detailed information can be fetched via several links in the submenu. 
 
 * **Task 9.** (voluntary) Browse the vignette of the following package:
 
