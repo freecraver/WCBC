@@ -133,9 +133,16 @@ Most countries appear exactly 285 times. All other countries except Sudan appear
 
 * **Task 6.** What is the class of `fifa.ranking$rank_date`? Is this a problem? Can you change it to class `date` using `as.Date`? What difference does this make for e.g. plotting?
 
+The class is 'factor' which causes problems as we want the dates to be continous. If we don't change the class the correct ordering and the correct distance between datapoints is not correctly derivable. In a plot we might see datapoints in wrong order or wrong distance from each other.
+
 * **Task 7.** Plot the FIFA ranks for a selection of favorites
 ```{r }
-favorites <- c("Germany", "Brazil", "Belgium", "France", "Argentinia")
+favorites <- c("Germany", "Brazil", "Belgium", "France", "Argentina")
+favorite_ranks <- fifa.ranking %>% filter(country_full %in% favorites) %>% select(rank, country_full, rank_date)
+ggplot(data=favorite_ranks, aes(x=rank_date, y=rank, group=country_full)) +
+  geom_line(aes(color=country_full)) +
+  geom_point(aes(color=country_full)) +
+  scale_y_reverse(limits=c(30,0))
 ```
 If you use `ggplot()` don't forget to `scale_y_reverse()``
 
