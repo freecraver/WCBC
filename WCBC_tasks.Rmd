@@ -215,12 +215,39 @@ hint: use `read_html()`, `html_nodes()` with the css selectors ".item" or "td", 
 ### Evaluation
 
 * **Task 13.** Implement the evaluation metric. This is a function with two arguments: the prediction matrix $R$ and a data structure with the true results $R_{true}$. Note, that this data structure should not be a matrix since two teams may compete twice against each other during the course of a world cup tournament. What data structure would you suggest?
+```{r }
+#' compute fraction of correct predictions
+#'
+#'@param R anti-symmetric matrix of prediction results [row=Home, col=Away]
+#'@param R_true dataframe containing [Home, Away, Result] whereas Result is one of [W,D,L]
+evaluate <- function(R, R_true) {
+  #TODO
+  return(0)
+}
+```
 
-* **Task 14.** Generate a matrix of random predictions to test this function. Don't forget, that this matrix is symmetric and that the diagonal should only contain NAs. 
+* **Task 14.** Generate a matrix of random predictions to test this function. Don't forget, that this matrix is symmetric and that the diagonal should only contain NAs.
+```{r }
+Wc.matches.2014 <- WC.matches %>% filter(Year==2014) 
+Teams.2014 <- Wc.matches.2014 %>% distinct(Team.Initials)
+R_random <- matrix(,32,32)
+random_results <- sample(c('W','D','L'),496, replace=TRUE)
+inverse_results <- sapply(random_results, function (x) switch(x, "W"="L", "L"="W", "D"))
+R_random[lower.tri(R_random, diag=F)] <- random_results
+R_random <- t(R_random)
+R_random[lower.tri(R_random, diag=F)] <- inverse_results
+
+```
 
 * **Task 15.** Generate (hypothetic) true results and test the function of Task 14.
+```{r }
+Test.2014 <- Wc.matches.2014 %>% select(Home = Team.Initials, Away = Opponent.Initials, Result)
+res <- evaluate(R_random, Test.2014)
+```
 
 * **Task 16.** A completely naive predictor, which randomly predicts the outcome with equal probabilites, should serve as a benchmark. What is the expected rate of correct predictions?
+
+0.33
   
   
 
