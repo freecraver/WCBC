@@ -1,12 +1,13 @@
 ---
 title: "New Tasks"
-author: "Fabian Schroeder"
+author: "Martin Freisehner & Wilma Weixelbaum"
 date: "June 5, 2018"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+load('WCBC.RData')
 ```
 
 * **Task 17** Choose a (first) model for a predictor. Clearly state your modelling assumptions and any decisions you made also during the foramting of the data, e.g. 
@@ -25,6 +26,124 @@ Since the data availability varies between data sets, clearly state how you want
 For other sources of data the availability might be different. Thus, we need a good strategy for bulding a classifier and evaluating it.
 
 If you want to use information such as scored goals, caps, etc. for every player, then the only possiblity would be the qualifiers. Where can be obtain the results?
+```{r }
+# create MW stats
+#getMwStats <- function() {
+
+  gk_positions <- c('Torwart')
+  def_positions <- c('Innenverteidiger', 'Linker Verteidiger', 'Rechter Verteidiger', 'Abwehr', 'Libero')
+  mid_positions <- c('Defensives Mittelfeld', 'Zentrales Mittelfeld', 'Offensives Mittelfeld', 'Linkes Mittelfeld', 'Rechtes Mittelfeld', 'Mittelfeld')
+  atk_positions <- c('Linksaußen', 'Rechtsaußen', 'Mittelstürmer', 'Hängende Spitze', 'Sturm')
+
+  #add position group
+  team.info <- team.info %>%
+    mutate(Position.Grp = ifelse(Position %in% gk_positions, "GK",
+                          ifelse(Position %in% def_positions, "DEF",
+                          ifelse(Position %in% mid_positions, "MID",
+                          ifelse(Position %in% atk_positions, "ATK", "NA")))))
+  # add mw rank
+  team.info <- team.info %>% 
+    group_by(Year) %>%
+    mutate(Market.Value.Rank = rank(desc(Market.Value), ties.method="min"))
+  
+  # add mw position rank
+  team.info <- team.info %>%
+    group_by(Year, Position.Grp) %>%
+    mutate(Market.Value.GroupRank = rank(desc(Market.Value), ties.method="min"))
+
+  #no info for 2002
+  team.info[team.info$Year==2002,]$Market.Value.Rank <- NaN
+  team.info[team.info$Year==2002,]$Market.Value.GroupRank <- NaN
+  
+  top_23 <- team.info %>% 
+    group_by(Year, Team) %>%
+    arrange(desc(Market.Value)) %>%
+    slice(1:23) %>%
+    summarize(sum_mv = sum(Market.Value),
+              avg_mv = mean(Market.Value),
+              avg_mv_rank = mean(Market.Value.Rank),
+              avg_mv_grp_rank = mean(Market.Value.GroupRank),
+              avg_age = mean(Age),
+              avg_height = mean(Height),
+              avg_caps = mean(Caps),
+              avg_goals = mean(Goals))
+  top_11 <- team.info %>% 
+    group_by(Year, Team) %>%
+    arrange(desc(Market.Value)) %>%
+    slice(1:11) %>%
+    summarize(sum_mv = sum(Market.Value),
+              avg_mv = mean(Market.Value),
+              avg_mv_rank = mean(Market.Value.Rank),
+              avg_mv_grp_rank = mean(Market.Value.GroupRank),
+              avg_age = mean(Age),
+              avg_height = mean(Height),
+              avg_caps = mean(Caps),
+              avg_goals = mean(Goals))
+  
+  top_5_def <- team.info %>%
+    filter(Position.Grp == "DEF") %>%
+    group_by(Year, Team) %>%
+    arrange(desc(Market.Value)) %>%
+    slice(1:5) %>%
+    summarize(sum_mv = sum(Market.Value),
+              avg_mv = mean(Market.Value),
+              avg_mv_rank = mean(Market.Value.Rank),
+              avg_mv_grp_rank = mean(Market.Value.GroupRank),
+              avg_age = mean(Age),
+              avg_height = mean(Height),
+              avg_caps = mean(Caps),
+              avg_goals = mean(Goals))
+    
+  top_5_mid <- team.info %>%
+    filter(Position.Grp == "MID") %>%
+    group_by(Year, Team) %>%
+    arrange(desc(Market.Value)) %>%
+    slice(1:5) %>%
+    summarize(sum_mv = sum(Market.Value),
+              avg_mv = mean(Market.Value),
+              avg_mv_rank = mean(Market.Value.Rank),
+              avg_mv_grp_rank = mean(Market.Value.GroupRank),
+              avg_age = mean(Age),
+              avg_height = mean(Height),
+              avg_caps = mean(Caps),
+              avg_goals = mean(Goals))
+    
+    top_5_att <- team.info %>%
+    filter(Position.Grp == "ATK") %>%
+    group_by(Year, Team) %>%
+    arrange(desc(Market.Value)) %>%
+    slice(1:5) %>%
+    summarize(sum_mv = sum(Market.Value),
+              avg_mv = mean(Market.Value),
+              avg_mv_rank = mean(Market.Value.Rank),
+              avg_mv_grp_rank = mean(Market.Value.GroupRank),
+              avg_age = mean(Age),
+              avg_height = mean(Height),
+              avg_caps = mean(Caps),
+              avg_goals = mean(Goals))
+    
+    top_gk <- team.info %>%
+    filter(Position.Grp == "GK") %>%
+    group_by(Year, Team) %>%
+    arrange(desc(Market.Value)) %>%
+    slice(1:1) %>%
+    summarize(sum_mv = sum(Market.Value),
+              avg_mv = mean(Market.Value),
+              avg_mv_rank = mean(Market.Value.Rank),
+              avg_mv_grp_rank = mean(Market.Value.GroupRank),
+              avg_age = mean(Age),
+              avg_height = mean(Height),
+              avg_caps = mean(Caps),
+              avg_goals = mean(Goals))
+    
+    key_players <- team.info %>%
+      group_by(Year, Team, Position.Grp) %>%
+      summarize(top_3 = sum(Market.Value.GroupRank < 4),
+                top_5 = sum(Market.Value.GroupRank < 6),
+                top_10 = sum(Market.Value.GroupRank < 11),
+                oa_top_11 = sum(Market.Value.Rank < 12))
+
+```
 
 
 * **Task 18** You do not have to use a statistical model, but if you do, you have to train it. This would require a trainings dataset. This training set would need include at least

@@ -349,6 +349,9 @@ colnames(R_random) <- lapply(Teams.2014$Team.Initials, as.character)
 Test.2014 <- Wc.matches.2014 %>% select(Home = Team.Initials, Away = Opponent.Initials, Result)
 res <- evaluate(R_random, Test.2014)
 cat("Accuracy:", res)
+
+# save everything to file
+save.image(file='WCBC.RData')
 ```
 
 * **Task 16.** A completely naive predictor, which randomly predicts the outcome with equal probabilites, should serve as a benchmark. What is the expected rate of correct predictions?
