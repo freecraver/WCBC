@@ -221,8 +221,9 @@ hint: use `read_html()`, `html_nodes()` with the css selectors ".item" or "td", 
 #'@param R anti-symmetric matrix of prediction results [row=Home, col=Away]
 #'@param R_true dataframe containing [Home, Away, Result] whereas Result is one of [W,D,L]
 evaluate <- function(R, R_true) {
-  #TODO
-  return(0)
+  R_true$Predict <- apply(R_true, 1, function(x) R[x['Home'],x['Away']])
+  eval <- R_true %>% summarize(n = n(), n_correct = sum(Result == Predict))
+  return(eval$n_correct/eval$n)
 }
 ```
 
@@ -236,6 +237,8 @@ inverse_results <- sapply(random_results, function (x) switch(x, "W"="L", "L"="W
 R_random[lower.tri(R_random, diag=F)] <- random_results
 R_random <- t(R_random)
 R_random[lower.tri(R_random, diag=F)] <- inverse_results
+rownames(R_random) <- lapply(Teams.2014$Team.Initials, as.character)
+colnames(R_random) <- lapply(Teams.2014$Team.Initials, as.character)
 
 ```
 
@@ -243,11 +246,12 @@ R_random[lower.tri(R_random, diag=F)] <- inverse_results
 ```{r }
 Test.2014 <- Wc.matches.2014 %>% select(Home = Team.Initials, Away = Opponent.Initials, Result)
 res <- evaluate(R_random, Test.2014)
+cat("Accuracy:", res)
 ```
 
 * **Task 16.** A completely naive predictor, which randomly predicts the outcome with equal probabilites, should serve as a benchmark. What is the expected rate of correct predictions?
 
-0.33
+0.33, as the chance to draw the correct result is 1/3 (if we assume that each outcome of a match has the same probability). 
   
   
 
