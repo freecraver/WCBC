@@ -11,6 +11,8 @@ load('WCBC.RData')
 
 # checks
 stopifnot(team.info %>% distinct(Year, Team) %>% group_by(Year) %>% summarize(n =n()) %>% filter(n != 32) %>% summarize(n=n()) == 0)
+
+library(DT)
 ```
 
 * **Task 17** Choose a (first) model for a predictor. Clearly state your modelling assumptions and any decisions you made also during the foramting of the data, e.g. 
@@ -167,9 +169,33 @@ getMwStats <- function() {
 }
 
 mw.data <- getMwStats()
+datatable(mw.data)
 
 ```
 
+
+```{r}
+# fifa ranking
+rank_years <- c(2002,2006,2010,2014,2018)
+ranking.data <- fifa.ranking %>%
+  select(rank, country_abrv, rank_date) %>%
+  mutate(Year = format(rank_date, "%Y"), Month = format(rank_date, "%m")) %>%
+  filter(Year %in% rank_years, Month < 6) %>%
+  group_by(country_abrv, Year) %>%
+  summarize(avg_rank = mean(rank, na.rm=TRUE),
+            min_rank = min(rank, na.rm=TRUE),
+            max_rank = max(rank, na.rm=TRUE))
+
+datatable(ranking.data)
+
+```
+
+
+```{r}
+# filter history to include results since 2000 as we don't care about earlier results (only vague relevance)
+WC.matches <- Wc.matches %>% filter(Year >= 2000)
+# TODO
+```
 
 * **Task 18** You do not have to use a statistical model, but if you do, you have to train it. This would require a trainings dataset. This training set would need include at least
 
