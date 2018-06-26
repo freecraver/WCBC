@@ -11,6 +11,7 @@ load('WCBC.RData')
 
 library(DT)
 library(dplyr)
+library(caret)
 
 # checks
 stopifnot(team.info %>% distinct(Year, Team) %>% group_by(Year) %>% summarize(n =n()) %>% filter(n != 32) %>% summarize(n=n()) == 0)
@@ -275,6 +276,31 @@ datatable(result_stats)
 - information about the home team
 - information about the away team
 
+```{r}
+WC.data$Result <- as.factor(WC.data$Result)
+
+featurePlot(x = WC.data[-c(1:4)], 
+            y = WC.data$Result,
+            plot="density",
+            scales = list(x = list(relation="free"), 
+                          y = list(relation="free")),
+            layout = c(4, 2),
+            auto.key = list(columns = 3))
+```
+
+
+One Hot Encoding
+```{r }
+USE_ONE_HOT_ENCODING <- FALSE
+
+WC.data$Team.Initials <- as.factor(WC.data$Team.Initials)
+WC.data$Opponent.Initials <- as.factor(WC.data$Opponent.Initials)
+
+if (USE_ONE_HOT_ENCODING) {
+  WC.data <- predict(dummyVars(~ .,data=WC.data), newdata = WC.data)
+}
+
+```
 
 * **Task 19** (voluntary) Create a list of pariticipating nations for every world cup and scrape their information from the follwing links:
 
