@@ -61,7 +61,7 @@ getMwStats <- function() {
   team.info[team.info$Year==2002,]$Market.Value.Rank <- NaN
   team.info[team.info$Year==2002,]$Market.Value.GroupRank <- NaN
   
-  num_features <- 11
+  num_features <- 6
   
   top_23 <- team.info %>% 
     group_by(Year, Team) %>%
@@ -70,12 +70,13 @@ getMwStats <- function() {
     summarize(sum_mv = sum(Market.Value, na.rm=TRUE),
               avg_mv = mean(Market.Value, na.rm=TRUE),
               avg_mv_rank = mean(Market.Value.Rank, na.rm=TRUE),
-              avg_mv_grp_rank = mean(Market.Value.GroupRank, na.rm=TRUE),
-              avg_age = mean(Age, na.rm=TRUE),
-              avg_height = mean(Height, na.rm=TRUE),
-              avg_caps = mean(Caps, na.rm=TRUE),
-              avg_goals = mean(Goals, na.rm=TRUE),
-              avg_goal_rate = mean(Goals, na.rm=TRUE)/mean(Caps, na.rm=TRUE))
+              avg_mv_grp_rank = mean(Market.Value.GroupRank, na.rm=TRUE)
+              #avg_age = mean(Age, na.rm=TRUE),
+              #avg_height = mean(Height, na.rm=TRUE),
+              #avg_caps = mean(Caps, na.rm=TRUE),
+              #avg_goals = mean(Goals, na.rm=TRUE),
+              #avg_goal_rate = mean(Goals, na.rm=TRUE)/mean(Caps, na.rm=TRUE)
+              )
   colnames(top_23)[3:num_features] <- paste("top_23_", colnames(top_23)[3:num_features], sep="")
   
   top_11 <- team.info %>% 
@@ -85,12 +86,13 @@ getMwStats <- function() {
     summarize(sum_mv = sum(Market.Value, na.rm=TRUE),
               avg_mv = mean(Market.Value, na.rm=TRUE),
               avg_mv_rank = mean(Market.Value.Rank, na.rm=TRUE),
-              avg_mv_grp_rank = mean(Market.Value.GroupRank, na.rm=TRUE),
-              avg_age = mean(Age, na.rm=TRUE),
-              avg_height = mean(Height, na.rm=TRUE),
-              avg_caps = mean(Caps, na.rm=TRUE),
-              avg_goals = mean(Goals, na.rm=TRUE),
-              avg_goal_rate = mean(Goals, na.rm=TRUE)/mean(Caps, na.rm=TRUE))
+              avg_mv_grp_rank = mean(Market.Value.GroupRank, na.rm=TRUE)
+              #avg_age = mean(Age, na.rm=TRUE),
+              #avg_height = mean(Height, na.rm=TRUE),
+              #avg_caps = mean(Caps, na.rm=TRUE),
+              #avg_goals = mean(Goals, na.rm=TRUE),
+              #avg_goal_rate = mean(Goals, na.rm=TRUE)/mean(Caps, na.rm=TRUE)
+              )
   colnames(top_11)[3:num_features] <- paste("top_11_", colnames(top_11)[3:num_features], sep="")
   
   top_5_def <- team.info %>%
@@ -101,12 +103,13 @@ getMwStats <- function() {
     summarize(sum_mv = sum(Market.Value, na.rm=TRUE),
               avg_mv = mean(Market.Value, na.rm=TRUE),
               avg_mv_rank = mean(Market.Value.Rank, na.rm=TRUE),
-              avg_mv_grp_rank = mean(Market.Value.GroupRank, na.rm=TRUE),
-              avg_age = mean(Age, na.rm=TRUE),
-              avg_height = mean(Height, na.rm=TRUE),
-              avg_caps = mean(Caps, na.rm=TRUE),
-              avg_goals = mean(Goals, na.rm=TRUE),
-              avg_goal_rate = mean(Goals, na.rm=TRUE)/mean(Caps, na.rm=TRUE))
+              avg_mv_grp_rank = mean(Market.Value.GroupRank, na.rm=TRUE)
+              #avg_age = mean(Age, na.rm=TRUE),
+              #avg_height = mean(Height, na.rm=TRUE),
+              #avg_caps = mean(Caps, na.rm=TRUE),
+              #avg_goals = mean(Goals, na.rm=TRUE),
+              #avg_goal_rate = mean(Goals, na.rm=TRUE)/mean(Caps, na.rm=TRUE)
+              )
   colnames(top_5_def)[3:num_features] <- paste("top_5_def_", colnames(top_5_def)[3:num_features], sep="")
     
   top_5_mid <- team.info %>%
@@ -117,12 +120,13 @@ getMwStats <- function() {
     summarize(sum_mv = sum(Market.Value, na.rm=TRUE),
               avg_mv = mean(Market.Value, na.rm=TRUE),
               avg_mv_rank = mean(Market.Value.Rank, na.rm=TRUE),
-              avg_mv_grp_rank = mean(Market.Value.GroupRank, na.rm=TRUE),
-              avg_age = mean(Age, na.rm=TRUE),
-              avg_height = mean(Height, na.rm=TRUE),
-              avg_caps = mean(Caps, na.rm=TRUE),
-              avg_goals = mean(Goals, na.rm=TRUE),
-              avg_goal_rate = mean(Goals, na.rm=TRUE)/mean(Caps, na.rm=TRUE))
+              avg_mv_grp_rank = mean(Market.Value.GroupRank, na.rm=TRUE)
+              #avg_age = mean(Age, na.rm=TRUE),
+              #avg_height = mean(Height, na.rm=TRUE),
+              #avg_caps = mean(Caps, na.rm=TRUE),
+              #avg_goals = mean(Goals, na.rm=TRUE),
+              #avg_goal_rate = mean(Goals, na.rm=TRUE)/mean(Caps, na.rm=TRUE)
+              )
   colnames(top_5_mid)[3:num_features] <- paste("top_5_mid_", colnames(top_5_mid)[3:num_features], sep="")
     
     top_5_att <- team.info %>%
@@ -133,12 +137,13 @@ getMwStats <- function() {
     summarize(sum_mv = sum(Market.Value, na.rm=TRUE),
               avg_mv = mean(Market.Value, na.rm=TRUE),
               avg_mv_rank = mean(Market.Value.Rank, na.rm=TRUE),
-              avg_mv_grp_rank = mean(Market.Value.GroupRank, na.rm=TRUE),
-              avg_age = mean(Age, na.rm=TRUE),
-              avg_height = mean(Height, na.rm=TRUE),
-              avg_caps = mean(Caps, na.rm=TRUE),
-              avg_goals = mean(Goals, na.rm=TRUE),
-              avg_goal_rate = mean(Goals, na.rm=TRUE)/mean(Caps, na.rm=TRUE))
+              avg_mv_grp_rank = mean(Market.Value.GroupRank, na.rm=TRUE)
+              #avg_age = mean(Age, na.rm=TRUE),
+              #avg_height = mean(Height, na.rm=TRUE),
+              #avg_caps = mean(Caps, na.rm=TRUE),
+              #avg_goals = mean(Goals, na.rm=TRUE),
+              #avg_goal_rate = mean(Goals, na.rm=TRUE)/mean(Caps, na.rm=TRUE)
+              )
     colnames(top_5_att)[3:num_features] <- paste("top_5_att_", colnames(top_5_att)[3:num_features], sep="")
     
     top_gk <- team.info %>%
@@ -150,12 +155,13 @@ getMwStats <- function() {
               avg_mv = mean(Market.Value, na.rm=TRUE),
               avg_mv_rank = mean(Market.Value.Rank, na.rm=TRUE),
               avg_mv_grp_rank = mean(Market.Value.GroupRank, na.rm=TRUE),
-              avg_age = mean(Age, na.rm=TRUE),
-              avg_height = mean(Height, na.rm=TRUE),
-              avg_caps = mean(Caps, na.rm=TRUE),
-              avg_goals = mean(Goals, na.rm=TRUE),
-              avg_goal_rate = mean(Goals, na.rm=TRUE)/mean(Caps, na.rm=TRUE))
-    colnames(top_gk)[3:num_features] <- paste("top_gk_", colnames(top_gk)[3:num_features], sep="")
+              #avg_age = mean(Age, na.rm=TRUE),
+              avg_height = mean(Height, na.rm=TRUE)
+              #avg_caps = mean(Caps, na.rm=TRUE),
+              #avg_goals = mean(Goals, na.rm=TRUE),
+              #avg_goal_rate = mean(Goals, na.rm=TRUE)/mean(Caps, na.rm=TRUE)
+              )
+    colnames(top_gk)[3:num_features+1] <- paste("top_gk_", colnames(top_gk)[3:num_features+1], sep="")
     
     key_players <- team.info %>%
       group_by(Year, Team) %>%
@@ -232,7 +238,7 @@ Task 17.2 Improvement for ML
 As it is easier for most ML-algorithms to work on single features instead of pairwise features we store the difference from team to opponent instead of both values for all features. This behaviour can be toggled with a flag.
 
 ```{r }
-USE_DIFFERENCES <- FALSE
+USE_DIFFERENCES <- TRUE
 
 if (USE_DIFFERENCES) {
   WC.data.dif <- WC.data[,1:4]
@@ -252,6 +258,11 @@ Task 17.3 Explore good features (singular)
 # This makes only sense if we don't use difference-stats (because results are mirrored :-))
 result_stats <- WC.data %>% group_by(Result) %>% summarise_all(funs(mean(., na.rm=TRUE)))
 datatable(result_stats)
+
+# after this check we removed 
+# - caps-goals-goals/caps (only available for 2018)
+# - age for everyone - not telling
+# - height (except for GK) - not telling, for GK (L:1.877, W:1.883) 
 
 ```
 
