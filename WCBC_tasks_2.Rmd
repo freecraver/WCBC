@@ -12,6 +12,7 @@ load('WCBC.RData')
 library(DT)
 library(dplyr)
 library(caret)
+library(doParallel)
 
 # checks
 stopifnot(team.info %>% distinct(Year, Team) %>% group_by(Year) %>% summarize(n =n()) %>% filter(n != 32) %>% summarize(n=n()) == 0)
@@ -301,6 +302,49 @@ if (USE_ONE_HOT_ENCODING) {
 }
 
 ```
+
+Create training/test set
+```{r }
+WC.test <- WC.data %>% filter(Year == 2014)
+WC.train <- WC.data %>% filter(Year < 2014)
+
+set.seed(122)
+
+cl <- makePSOCKcluster(5)
+registerDoParallel(cl)
+
+fitControl <- trainControl(method = "repeatedcv",
+                           number = 10,
+                           repeats = 10)
+
+
+```
+
+GBM
+```{r }
+WC.train$Result <- as.character(WC.train$Result)
+
+gbmGrid <-  expand.grid(interaction.depth = 1, 
+                        n.trees = 50, 
+                        shrinkage = 0.1,
+                        n.minobsinnode = 20)
+
+gbmFit1 <- train(Result ~ ., data = WC.train, 
+                 method = "gbm", 
+                 trControl = fitControl,
+                 tuneGrid = gbmGrid,
+                 verbose = FALSE,
+                 na.action = na.omit)
+
+plot(gbmFit1)
+
+#best --> depth 1 - n.trees 50 
+```
+
+```{r}
+stopCluster(cl)
+```
+
 
 * **Task 19** (voluntary) Create a list of pariticipating nations for every world cup and scrape their information from the follwing links:
 
