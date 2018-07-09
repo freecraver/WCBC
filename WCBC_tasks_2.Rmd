@@ -408,18 +408,6 @@ plot(nbFit)
 ```
 
 ```{r}
-abGrid <-  expand.grid(nIter=1,method='')
-
-abFit <- train(Result ~ ., data = WC.train, 
-                 method = "adaboost", 
-                 trControl = fitControl,
-                 verbose=FALSE,
-                 na.action = na.omit)
-
-plot(abFit)
-```
-
-```{r}
 stopCluster(cl)
 ```
 
