@@ -215,7 +215,7 @@ NOTE: Code taken from https://github.com/SchroederFabian
     for (k in 1:length(links.lst)) {
       # scrape the links of the team websites
       links.site <- read_html(links.lst[k])
-      selector <- ifelse(as.numeric(names(links.lst)[k]) == 2018, "#yw1 .hauptlink", ".hauptlink")
+      selector <- ifelse(as.numeric(names(links.lst)[k]) == 2018, "#yw1 .hauptlink , #yw2 .hauptlink", ".hauptlink")
       links.names <- links.site %>% html_nodes(selector) %>% html_children() %>% html_text()
       links <- links.site %>% html_nodes(selector) %>% html_children() %>% html_attr("href")
       links <- paste0("https://www.transfermarkt.de", links)
