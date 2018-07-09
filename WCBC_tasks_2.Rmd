@@ -370,7 +370,7 @@ plot(svmFit)
 ```
 
 ```{r}
-cartFit <- train(Result ~ ., 
+treebagFit <- train(Result ~ ., 
                  data = WC.train, 
                  method = "treebag",
                  trControl = fitControl,
@@ -378,7 +378,20 @@ cartFit <- train(Result ~ .,
                  na.action = na.omit
                  )
 
-print(cartFit$results)
+print(treebagFit$results)
+```
+
+```{r}
+rpartFitGrid <-  expand.grid(cp=c(0.02054795, 0.04109589, 0.36986301))
+rpartFit <- train(Result ~ ., 
+                 data = WC.train, 
+                 method = "rpart",
+                 trControl = fitControl,
+                 tuneGrid = rpartFitGrid,
+                 #verbose=FALSE,
+                 na.action = na.omit)
+
+plot(rpartFit)
 ```
 
 ```{r}
@@ -406,6 +419,7 @@ nbFit <- train(Result ~ ., data = WC.train,
 
 plot(nbFit)
 ```
+
 
 ```{r}
 stopCluster(cl)
