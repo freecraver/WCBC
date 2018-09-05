@@ -309,9 +309,61 @@ hint: use `read_html()`, `html_nodes()` with the css selectors ".item" or "td", 
 ### Socio-economic Data
 
 * **Task 11.** Get familiar with the data using `str()`, `head()`, `table()`, `summary()`, etc. Describe the data in a few lines. 
+```{r}
+country.data <- read.csv("countries of the world.csv")
+str(country.data)
+summary(country.data)
+
+```
 
 * **Task 12.** Link the FIFA Ranks with this data by means of the country names and generate a scatterplot of the rank against the population, gdp etc. Which of the socio economic variables contains some information about the teams performance?
+```{r}
+trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+replace_ampersand <- function (x) gsub("&", "and", x)
+replace_the <- function (x) gsub(", The", "", x)
+ranking <- fifa.ranking
+colnames(ranking)[2] <- "Country"
 
+ranking$Country <- sapply(ranking$Country, function(x) trim(x))
+country.data$Country <- sapply(country.data$Country, function(x) trim(x))
+country.data$Country <- sapply(country.data$Country, function(x) replace_ampersand(x))
+country.data$Country <- sapply(country.data$Country, function(x) replace_the(x))
+ranking$rank_date <- lubridate::ymd(ranking$rank_date)
+mdata <- subset(ranking, ranking$rank_date > "2018-05-01")
+
+mdata <- merge(x = mdata, y = country.data, by = "Country", all.x = T)
+
+mdata <- na.omit(mdata)
+mdata <- mdata[order(mdata$rank),]
+
+mdata.top100 <- subset(mdata, mdata$rank <= 100)
+
+mdata.top100 %>% ggplot(aes(x = rank, y = Population)) +
+  scale_x_reverse(limits=c(100,1)) +
+  geom_point() +
+  geom_smooth()
+
+mdata.top100 %>% ggplot(aes(x = rank, y = as.numeric(GDP....per.capita.))) +
+  scale_x_reverse(limits=c(100,1)) +
+  geom_point() +
+  geom_smooth()
+
+mdata %>% ggplot(aes(x = rank, y = as.numeric(Coastline..coast.area.ratio.))) +
+  scale_x_reverse(limits=c(220,1)) +
+  geom_point() +
+  geom_smooth()
+
+mdata %>% ggplot(aes(x = rank, y = as.numeric(Industry))) +
+  scale_x_reverse(limits=c(220,1)) +
+  geom_point() +
+  geom_smooth()
+
+mdata.top100 %>% ggplot(aes(x = rank, y = as.numeric(Service))) +
+  scale_x_reverse(limits=c(100,1)) +
+  geom_point() +
+  geom_smooth()
+
+```
 
 ### Evaluation
 
