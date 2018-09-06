@@ -337,6 +337,10 @@ gbmFit1 <- train(Result ~ ., data = WC.train,
 
 plot(gbmFit1)
 
+gbmPred <- predict(gbmFit1, WC.test)
+confusionMatrix(gbmPred, WC.test$Result)
+
+
 #best --> depth 1 - n.trees 50 
 ```
 
@@ -353,6 +357,9 @@ rfFit1 <- train(Result ~ ., data = WC.train,
 
 
 plot(rfFit1)
+
+rfPred <- predict(rfFit1, WC.test)
+confusionMatrix(rfPred, WC.test$Result)
 ```
 
 ```{r}
@@ -367,6 +374,9 @@ svmFit <- train(Result ~ ., data = WC.train,
                  na.action = na.omit)
 
 plot(svmFit)
+
+svmPred <- predict(svmFit, WC.test)
+confusionMatrix(svmPred, WC.test$Result)
 ```
 
 ```{r}
@@ -379,6 +389,9 @@ treebagFit <- train(Result ~ .,
                  )
 
 print(treebagFit$results)
+
+treebagPred <- predict(treebagFit, WC.test)
+confusionMatrix(treebagPred, WC.test$Result)
 ```
 
 ```{r}
@@ -392,6 +405,9 @@ rpartFit <- train(Result ~ .,
                  na.action = na.omit)
 
 plot(rpartFit)
+
+rpartPred <- predict(rpartFit, WC.test)
+confusionMatrix(rpartPred, WC.test$Result)
 ```
 
 ```{r}
@@ -405,6 +421,9 @@ avNNetFit <- train(Result ~ ., data = WC.train,
                  na.action = na.omit)
 
 plot(avNNetFit)
+
+avNNetPred <- predict(avNNetFit, WC.test)
+confusionMatrix(avNNetPred, WC.test$Result)
 ```
 
 ```{r}
@@ -418,6 +437,9 @@ nbFit <- train(Result ~ ., data = WC.train,
                  na.action = na.omit)
 
 plot(nbFit)
+
+nbPred <- predict(nbFit, WC.test)
+confusionMatrix(nbPred, WC.test$Result)
 ```
 
 
@@ -427,8 +449,8 @@ stopCluster(cl)
 
 
 ```{r}
-WC18.test <- WC.data %>% filter(Year >= 2018)
-WC18.train <- WC.data %>% filter(Year < 2018)
+#WC18.test <- WC.data %>% filter(Year >= 2018)
+WC18.train <- WC.data
 
 set.seed(122)
 
@@ -437,16 +459,17 @@ registerDoParallel(cl)
 
 
 WC18.train$Result <- as.character(WC18.train$Result)
-#avNNetGrid <-  expand.grid(size=c(1,3,5), decay=c(0e+00,1e-04,1e-01), bag = FALSE)
 
-avNNetFit <- train(Result ~ ., data = WC18.train, 
-                 method = "avNNet", 
+gbmFit2 <- train(Result ~ ., data = WC18.train, 
+                 method = "gbm", 
                  trControl = fitControl,
- #                tuneGrid = avNNetGrid,
-                 verbose=FALSE,
+                 verbose = FALSE,
                  na.action = na.omit)
 
-plot(avNNetFit)
+plot(gbmFit2)
+
+#gbmPred2 <- predict(gbmFit2, WC18.test)
+#confusionMatrix(gbmPred2, WC18.test$Result)
 
 stopCluster(cl)
 
