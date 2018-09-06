@@ -427,7 +427,7 @@ stopCluster(cl)
 
 
 ```{r}
-WC18.test <- WC.data %>% filter(Year == 2018)
+WC18.test <- WC.data %>% filter(Year >= 2018)
 WC18.train <- WC.data %>% filter(Year < 2018)
 
 set.seed(122)
