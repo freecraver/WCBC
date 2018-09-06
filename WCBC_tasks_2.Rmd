@@ -202,9 +202,12 @@ datatable(ranking.data)
 
 ```{r}
 # filter history to include results since 2002 as we don't care about earlier results (only vague relevance)
+WC18.matches <- read.csv("wc2018.csv")
 match.data <- WC.matches %>%
   filter(Year >= 2002) %>%
   select(Year, Team.Initials, Opponent.Initials, Result)
+
+match.data  <- rbind(match.data, WC18.matches)
 
 datatable(match.data)
 ```
@@ -296,6 +299,31 @@ USE_ONE_HOT_ENCODING <- FALSE
 
 WC.data$Team.Initials <- as.factor(WC.data$Team.Initials)
 WC.data$Opponent.Initials <- as.factor(WC.data$Opponent.Initials)
+
+temp <- WC.data
+
+addLevel <- function(x, newlevel=NULL) {
+  if(is.factor(x)) {
+    if (is.na(match(newlevel, levels(x))))
+      return(factor(x, levels=c(levels(x), newlevel)))
+  }
+  return(x)
+}
+
+WC.data$Team.Initials <- addLevel(WC.data$Team.Initials, "EGY")
+WC.data$Team.Initials <- addLevel(WC.data$Team.Initials, "ISL")
+WC.data$Team.Initials <- addLevel(WC.data$Team.Initials, "MAR")
+WC.data$Team.Initials <- addLevel(WC.data$Team.Initials, "PAN")
+WC.data$Team.Initials <- addLevel(WC.data$Team.Initials, "SEN")
+WC.data$Opponent.Initials <-addLevel(WC.data$Opponent.Initials, "EGY")
+WC.data$Opponent.Initials <-addLevel(WC.data$Opponent.Initials, "ISL")
+WC.data$Opponent.Initials <-addLevel(WC.data$Opponent.Initials, "MAR")
+WC.data$Opponent.Initials <-addLevel(WC.data$Opponent.Initials, "PAN")
+WC.data$Opponent.Initials <-addLevel(WC.data$Opponent.Initials, "SEN")
+
+
+#temp$Team.Initials <- factor(c(levels(temp$Team.Initials), 'EGY', 'ISL', 'MAR', 'PAN', 'SEN'))
+#temp$Opponent.Initials <- factor(temp$Opponent.Initials,levels=c(sort(unique(temp$Opponent.Initials)), 'EGY', 'ISL', 'MAR', 'PAN', 'SEN'))
 
 if (USE_ONE_HOT_ENCODING) {
   WC.data <- predict(dummyVars(~ .,data=WC.data), newdata = WC.data)
@@ -449,8 +477,8 @@ stopCluster(cl)
 
 
 ```{r}
-#WC18.test <- WC.data %>% filter(Year >= 2018)
-WC18.train <- WC.data
+WC18.test <- WC.data %>% filter(Year >= 2018)
+WC18.train <- WC.data %>% filter(Year< 2018)
 
 set.seed(122)
 
@@ -460,16 +488,29 @@ registerDoParallel(cl)
 
 WC18.train$Result <- as.character(WC18.train$Result)
 
+gbmGrid <-  expand.grid(interaction.depth = c(1,2,5), 
+                        n.trees = 50, 
+                        shrinkage = 0.1,
+                        n.minobsinnode = 20)
+
 gbmFit2 <- train(Result ~ ., data = WC18.train, 
                  method = "gbm", 
                  trControl = fitControl,
+                 tuneGrid = gbmGrid,
                  verbose = FALSE,
                  na.action = na.omit)
 
+
 plot(gbmFit2)
 
-#gbmPred2 <- predict(gbmFit2, WC18.test)
-#confusionMatrix(gbmPred2, WC18.test$Result)
+gbmPred2 <- predict(gbmFit2, WC18.test, na.action=na.pass)
+confusionMatrix(gbmPred2, WC18.test$Result)
+
+res <- WC18.test %>%
+  mutate(Prediction = gbmPred2) %>%
+  select(Year,Team.Initials,Opponent.Initials,Result,Prediction)
+
+datatable(res)
 
 stopCluster(cl)
 
