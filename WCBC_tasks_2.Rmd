@@ -562,6 +562,14 @@ datatable(R_all)
 R_true <- WC.data.2018 %>% rename(Home = Team.Initials, Away = Opponent.Initials) %>% select(Home, Away, Result)
 cat("Not antisymmetric", evaluate(R_all, R_true))
 
+sym_results = R_all[lower.tri(R_all, diag=F)]
+inverse_results <- sapply(sym_results, function(x) switch(as.character(x), "W"="L", "L"="W", "D"))
+R_all_sym <- t(R_all)
+R_all_sym[lower.tri(R_all_sym, diag=F)] <- inverse_results
+R_all_sym <- t(R_all_sym)
+datatable(R_all_sym)
+cat("Antisymmetric", evaluate(R_all_sym, R_true))
+
 
 
 
