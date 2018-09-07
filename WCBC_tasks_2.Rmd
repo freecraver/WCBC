@@ -515,14 +515,17 @@ res <- WC18.test %>%
 
 datatable(res)
 
+```
+
+
+```{r }
 WC.data.2018 <- WC.data %>% filter(Year==2018) 
-Teams.2018 <- Wc.data.2018 %>% distinct(Team.Initials)
+Teams.2018 <- WC.data.2018 %>% distinct(Team.Initials)
 allvsall <- expand.grid(Teams.2018$Team.Initials, Teams.2018$Team.Initials)
 colnames(allvsall) <- c("Team.Initials", "Opponent.Initials")
 allvsall <- allvsall %>% mutate(Year = 2018)
 allvsall <- allvsall[,c(3,1,2)]
 allvsall <- allvsall %>% mutate(Result=NA)
-#result.list <- lapply(apply(result.df, 1, identity), unlist)
 allvsall <- left_join(allvsall, mw.data, by=c("Year" = "Year", "Team.Initials" = "Team"))
 allvsall <- left_join(allvsall, ranking.data, by=c("Year" = "Year", "Team.Initials" = "country_abrv")) 
 colnames(allvsall)[5:length(allvsall)] <- paste("team_", colnames(allvsall)[5:length(allvsall)], sep="")
@@ -549,22 +552,20 @@ allvsall <- allvsall %>% mutate(Prediction = allvsall.prediction)
 R_all <- matrix(,32,32)
 predicted_results <- allvsall.prediction
 predicted_results <- as.character(predicted_results)
-inverse_pred_results <- sapply(predicted_results, function (x) switch(as.character(x), "W"="L", "L"="W", "D"))
-
-#predicted_results <- factor(predicted_results)
-#inverse_pred_results <- factor(inverse_pred_results)
-
-R_all[lower.tri(R_all, diag=F)] <- predicted_results
-R_all <- t(R_all)
-R_all[lower.tri(R_all, diag=F)] <- inverse_pred_results
+R_all <- matrix(unlist(predicted_results), ncol=32, byrow=F)
+diag(R_all) <- NA
 rownames(R_all) <- lapply(Teams.2018$Team.Initials, as.character)
 colnames(R_all) <- lapply(Teams.2018$Team.Initials, as.character)
 
-print(R_all)
+datatable(R_all)
+
+R_true <- WC.data.2018 %>% rename(Home = Team.Initials, Away = Opponent.Initials) %>% select(Home, Away, Result)
+cat("Not antisymmetric", evaluate(R_all, R_true))
+
+
 
 
 ```
-
 
 * **Task 19** (voluntary) Create a list of pariticipating nations for every world cup and scrape their information from the follwing links:
 
