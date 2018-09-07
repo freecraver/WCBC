@@ -261,7 +261,7 @@ if (USE_DIFFERENCES) {
 Task 17.3 Explore good features (singular)
 ```{r }
 # This makes only sense if we don't use difference-stats (because results are mirrored :-))
-result_stats <- WC.data %>% group_by(Result) %>% summarise_all(funs(mean(., na.rm=TRUE)))
+result_stats <- WC.data %>% filter(Year < 2018) %>% group_by(Result) %>% summarise_all(funs(mean(., na.rm=TRUE)))
 datatable(result_stats)
 
 # after this check we removed 
@@ -283,8 +283,10 @@ datatable(result_stats)
 ```{r}
 WC.data$Result <- as.factor(WC.data$Result)
 
-featurePlot(x = WC.data[-c(1:4)], 
-            y = WC.data$Result,
+WC.wo2108 <- WC.data %>% filter(Year < 2018)
+
+featurePlot(x = WC.wo2108[-c(1:4)], 
+            y = WC.wo2108$Result,
             plot="density",
             scales = list(x = list(relation="free"), 
                           y = list(relation="free")),
